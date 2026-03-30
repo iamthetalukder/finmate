@@ -12,7 +12,23 @@ async function sendMessage(chat_id: number, text: string) {
 }
 
 async function parseTransaction(message: string) {
-  const lower = message.toLowerCase();
+  const bengaliDigits: Record<string, string> = {
+    "০": "0",
+    "১": "1",
+    "২": "2",
+    "৩": "3",
+    "৪": "4",
+    "৫": "5",
+    "৬": "6",
+    "৭": "7",
+    "৮": "8",
+    "৯": "9",
+  };
+  const normalizedMessage = message
+    .split("")
+    .map((c) => bengaliDigits[c] || c)
+    .join("");
+  const lower = normalizedMessage.toLowerCase();
 
   const categories: Record<string, string[]> = {
     food: [
@@ -31,6 +47,7 @@ async function parseTransaction(message: string) {
       "snack",
       "burger",
       "pizza",
+      "cafe",
     ],
     transport: [
       "transport",
@@ -46,6 +63,7 @@ async function parseTransaction(message: string) {
       "fuel",
       "petrol",
       "cng",
+      "auto",
     ],
     shopping: [
       "shopping",
@@ -58,6 +76,7 @@ async function parseTransaction(message: string) {
       "amazon",
       "mall",
       "market",
+      "store",
     ],
     health: [
       "medicine",
@@ -68,6 +87,7 @@ async function parseTransaction(message: string) {
       "clinic",
       "gym",
       "health",
+      "dentist",
     ],
     entertainment: [
       "netflix",
@@ -78,6 +98,7 @@ async function parseTransaction(message: string) {
       "youtube",
       "subscription",
       "ticket",
+      "concert",
     ],
     housing: [
       "rent",
@@ -89,6 +110,7 @@ async function parseTransaction(message: string) {
       "gas",
       "house",
       "বাড়ি",
+      "apartment",
     ],
     income: [
       "salary",
@@ -102,6 +124,7 @@ async function parseTransaction(message: string) {
       "got paid",
       "invoice",
       "paid me",
+      "bonus",
     ],
   };
 
@@ -161,16 +184,17 @@ async function parseTransaction(message: string) {
     "বেতন",
     "freelance paid",
     "paid me",
+    "bonus",
   ].some((w) => lower.includes(w));
 
-  const numbers = message.match(/\d+(\.\d+)?/g);
+  const numbers = normalizedMessage.match(/\d+(\.\d+)?/g);
   const amount = numbers ? parseFloat(numbers[0]) : 0;
 
   if (amount === 0) return { is_transaction: false };
 
   let detectedCurrency = "USD";
   for (const [currency, keywords] of Object.entries(currencyMap)) {
-    if (keywords.some((k) => lower.includes(k))) {
+    if (keywords.some((k) => lower.includes(k) || message.includes(k))) {
       detectedCurrency = currency;
       break;
     }
@@ -182,7 +206,11 @@ async function parseTransaction(message: string) {
 
   let category = "other";
   for (const [cat, keywords] of Object.entries(categories)) {
-    if (keywords.some((k) => lower.includes(k))) {
+    if (
+      keywords.some(
+        (k) => lower.includes(k) || message.toLowerCase().includes(k),
+      )
+    ) {
       category = cat;
       break;
     }
@@ -205,7 +233,6 @@ async function getOrCreateUser(telegram_id: number) {
     .select("*")
     .eq("telegram_id", telegram_id)
     .single();
-
   if (existing) return existing;
   return null;
 }
@@ -213,12 +240,10 @@ async function getOrCreateUser(telegram_id: number) {
 export async function POST(request: NextRequest) {
   const body = await request.json();
   const message = body.message;
-
   if (!message) return NextResponse.json({ ok: true });
 
   const chat_id = message.chat.id;
   const text = message.text || "";
-  const username = message.from?.username || "User";
 
   if (text === "/start") {
     await sendMessage(
@@ -238,7 +263,7 @@ I can help you track your finances in any currency just by sending me a message.
 <b>Commands:</b>
 /balance - Monthly summary
 /connect - Link FinMate account
-/help - Show examples`,
+/help - Show all currencies`,
     );
     return NextResponse.json({ ok: true });
   }
@@ -246,7 +271,7 @@ I can help you track your finances in any currency just by sending me a message.
   if (text === "/help") {
     await sendMessage(
       chat_id,
-      `<b>FinMate Bot — Supported Currencies:</b>
+      `<b>FinMate — Supported Currencies:</b>
 
 🇧🇩 BDT — taka, টাকা, ৳
 🇺🇸 USD — dollar, $
@@ -293,16 +318,19 @@ Once connected, all transactions sync across devices!`,
     const user = await getOrCreateUser(chat_id);
     const userId = user?.id || "00000000-0000-0000-0000-000000000001";
 
+    const startOfMonth = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1,
+    )
+      .toISOString()
+      .split("T")[0];
+
     const { data: transactions } = await supabaseAdmin
       .from("transactions")
       .select("*")
       .eq("user_id", userId)
-      .gte(
-        "date",
-        new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-          .toISOString()
-          .split("T")[0],
-      );
+      .gte("date", startOfMonth);
 
     const income =
       transactions
@@ -322,7 +350,7 @@ Once connected, all transactions sync across devices!`,
 ❤️ Expenses: $${expense.toFixed(2)}
 💙 Savings:  $${(income - expense).toFixed(2)}
 
-📝 Total transactions: ${count}
+📝 Transactions: ${count}
 
 <i>Visit finmate-theta.vercel.app for full dashboard</i>`,
     );
@@ -341,6 +369,7 @@ Once connected, all transactions sync across devices!`,
 - "চা ১৫ টাকা"
 - "received salary 50000"
 - "transport £15"
+- "dinner ₹500"
 
 Send /help to see all supported currencies.`,
     );
