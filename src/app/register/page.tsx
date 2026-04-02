@@ -2,16 +2,58 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+const CURRENCIES = [
+  { code: "BDT", flag: "🇧🇩", name: "Bangladeshi Taka" },
+  { code: "USD", flag: "🇺🇸", name: "US Dollar" },
+  { code: "EUR", flag: "🇪🇺", name: "Euro" },
+  { code: "GBP", flag: "🇬🇧", name: "British Pound" },
+  { code: "INR", flag: "🇮🇳", name: "Indian Rupee" },
+  { code: "AED", flag: "🇦🇪", name: "UAE Dirham" },
+  { code: "SAR", flag: "🇸🇦", name: "Saudi Riyal" },
+  { code: "MYR", flag: "🇲🇾", name: "Malaysian Ringgit" },
+  { code: "SGD", flag: "🇸🇬", name: "Singapore Dollar" },
+  { code: "CAD", flag: "🇨🇦", name: "Canadian Dollar" },
+  { code: "AUD", flag: "🇦🇺", name: "Australian Dollar" },
+  { code: "JPY", flag: "🇯🇵", name: "Japanese Yen" },
+  { code: "PKR", flag: "🇵🇰", name: "Pakistani Rupee" },
+  { code: "TRY", flag: "🇹🇷", name: "Turkish Lira" },
+  { code: "NGN", flag: "🇳🇬", name: "Nigerian Naira" },
+];
+
+function getStrength(p: string) {
+  if (p.length === 0) return 0;
+  if (p.length < 6) return 1;
+  if (p.length < 8) return 2;
+  if (/[A-Z]/.test(p) && /[0-9]/.test(p)) return 4;
+  return 3;
+}
+
+export default function RegisterPage() {
   const router = useRouter();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [currency, setCurrency] = useState("BDT");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  async function handleLogin() {
-    if (!email || !password) {
+  const strength = getStrength(password);
+  const strengthColors = [
+    "#EBEBEB",
+    "#E24B4A",
+    "#F59E0B",
+    "#4AE090",
+    "#4AE090",
+  ];
+  const strengthLabels = ["", "Weak", "Fair", "Good", "Strong"];
+
+  async function handleRegister() {
+    if (!name || !email || !password) {
       setError("Please fill in all fields");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters");
       return;
     }
     setLoading(true);
@@ -54,11 +96,11 @@ export default function LoginPage() {
           borderBottom: "0.5px solid var(--border)",
         }}
       >
-        <div style={{ fontSize: 18, fontWeight: 700, color: "var(--text)" }}>
+        <div style={{ fontSize: 18, fontWeight: 700 }}>
           Fin<span style={{ color: "var(--accent)" }}>Mate</span>
         </div>
         <button
-          onClick={() => router.push("/register")}
+          onClick={() => router.push("/login")}
           style={{
             background: "transparent",
             border: "0.5px solid var(--border2)",
@@ -69,7 +111,7 @@ export default function LoginPage() {
             cursor: "pointer",
           }}
         >
-          Create account
+          Sign in
         </button>
       </nav>
 
@@ -97,79 +139,98 @@ export default function LoginPage() {
           <div className="auth-brand" style={{ display: "none" }}>
             <div
               style={{
+                fontSize: 26,
+                fontWeight: 700,
+                color: "var(--text)",
+                marginBottom: 8,
+                lineHeight: 1.3,
+              }}
+            >
+              Join thousands of
+              <br />
+              <span style={{ color: "var(--accent)" }}>smart savers.</span>
+            </div>
+            <div
+              style={{
+                fontSize: 13,
+                color: "var(--text2)",
+                lineHeight: 1.7,
+                marginBottom: 24,
+              }}
+            >
+              Start tracking your finances today. Free forever with AI-powered
+              insights that actually help you save.
+            </div>
+            <div
+              style={{
                 background: "var(--primary)",
                 borderRadius: "var(--radius-lg)",
-                padding: 32,
-                marginBottom: 24,
+                padding: 20,
+                marginBottom: 16,
               }}
             >
               <div
                 style={{
-                  fontSize: 28,
-                  fontWeight: 700,
-                  color: "#fff",
-                  marginBottom: 6,
-                }}
-              >
-                Track smarter.
-              </div>
-              <div
-                style={{
-                  fontSize: 28,
-                  fontWeight: 700,
+                  fontSize: 11,
+                  fontWeight: 600,
                   color: "var(--accent)",
+                  marginBottom: 10,
+                  letterSpacing: ".04em",
+                  textTransform: "uppercase" as const,
                 }}
               >
-                Save better.
+                Free plan includes
               </div>
-              <div
-                style={{
-                  fontSize: 13,
-                  color: "#666",
-                  marginTop: 12,
-                  lineHeight: 1.7,
-                }}
-              >
-                AI-powered finance for professionals. 20 currencies. Real-time
-                insights.
-              </div>
-            </div>
-            {[
-              "AI spending insights & daily tips",
-              "Telegram bot — log expenses by chat",
-              "20 currencies including BDT & INR",
-              "Free plan — no credit card needed",
-            ].map((f) => (
-              <div
-                key={f}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  fontSize: 13,
-                  color: "var(--text2)",
-                  marginBottom: 12,
-                }}
-              >
+              {[
+                "30 transactions per month",
+                "1 AI insight per week",
+                "5 AI chat messages per day",
+                "Telegram bot access",
+                "Dashboard + charts",
+              ].map((f) => (
                 <div
+                  key={f}
                   style={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: "50%",
-                    background: "var(--accent-light)",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 10,
-                    color: "var(--accent-dark)",
-                    flexShrink: 0,
+                    gap: 8,
+                    fontSize: 12,
+                    color: "#999",
+                    marginBottom: 8,
                   }}
                 >
-                  ✓
+                  <div
+                    style={{
+                      width: 16,
+                      height: 16,
+                      borderRadius: "50%",
+                      background: "#1A1A1A",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 9,
+                      color: "var(--accent)",
+                      flexShrink: 0,
+                    }}
+                  >
+                    ✓
+                  </div>
+                  {f}
                 </div>
-                {f}
-              </div>
-            ))}
+              ))}
+            </div>
+            <div
+              style={{
+                background: "var(--accent-light)",
+                borderRadius: "var(--radius)",
+                padding: "12px 16px",
+                fontSize: 12,
+                color: "var(--accent-dark)",
+                fontWeight: 500,
+              }}
+            >
+              Upgrade to Pro anytime from $3/month
+            </div>
           </div>
 
           {/* Form */}
@@ -183,20 +244,13 @@ export default function LoginPage() {
               width: "100%",
             }}
           >
-            <div
-              style={{
-                fontSize: 22,
-                fontWeight: 700,
-                color: "var(--text)",
-                marginBottom: 4,
-              }}
-            >
-              Welcome back
+            <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>
+              Create free account
             </div>
             <div
               style={{ fontSize: 13, color: "var(--text3)", marginBottom: 24 }}
             >
-              Sign in to your FinMate account
+              No credit card needed · Cancel anytime
             </div>
 
             {/* Google */}
@@ -234,7 +288,7 @@ export default function LoginPage() {
               >
                 G
               </div>
-              Continue with Google
+              Sign up with Google
             </button>
 
             {/* Divider */}
@@ -255,7 +309,7 @@ export default function LoginPage() {
                   background: "var(--border)",
                 }}
               />
-              or sign in with email
+              or use email
               <div
                 style={{
                   flex: 1,
@@ -280,6 +334,30 @@ export default function LoginPage() {
                 {error}
               </div>
             )}
+
+            {/* Name */}
+            <div style={{ marginBottom: 12 }}>
+              <label
+                style={{
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: "var(--text2)",
+                  display: "block",
+                  marginBottom: 5,
+                }}
+              >
+                Full name
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Alex Rahman"
+                style={inputStyle}
+                onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+                onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
+              />
+            </div>
 
             {/* Email */}
             <div style={{ marginBottom: 12 }}>
@@ -306,7 +384,7 @@ export default function LoginPage() {
             </div>
 
             {/* Password */}
-            <div style={{ marginBottom: 8 }}>
+            <div style={{ marginBottom: 6 }}>
               <label
                 style={{
                   fontSize: 12,
@@ -322,30 +400,70 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Min. 8 characters"
                 style={inputStyle}
                 onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
                 onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
-                onKeyDown={(e) => e.key === "Enter" && handleLogin()}
               />
             </div>
 
-            {/* Forgot */}
-            <div
-              style={{
-                textAlign: "right",
-                fontSize: 12,
-                color: "var(--text3)",
-                marginBottom: 20,
-                cursor: "pointer",
-              }}
-            >
-              Forgot password?
+            {/* Strength bar */}
+            {password.length > 0 && (
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ display: "flex", gap: 4, marginBottom: 4 }}>
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      style={{
+                        flex: 1,
+                        height: 3,
+                        borderRadius: 2,
+                        background:
+                          i <= strength
+                            ? strengthColors[strength]
+                            : "var(--border)",
+                        transition: "background .3s",
+                      }}
+                    />
+                  ))}
+                </div>
+                <div style={{ fontSize: 10, color: strengthColors[strength] }}>
+                  {strengthLabels[strength]}
+                </div>
+              </div>
+            )}
+
+            {/* Currency */}
+            <div style={{ marginBottom: 20 }}>
+              <label
+                style={{
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: "var(--text2)",
+                  display: "block",
+                  marginBottom: 5,
+                }}
+              >
+                Preferred currency
+              </label>
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                style={{ ...inputStyle, cursor: "pointer" }}
+                onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+                onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
+              >
+                {CURRENCIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.flag} {c.code} — {c.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Submit */}
             <button
-              onClick={handleLogin}
+              onClick={handleRegister}
               disabled={loading}
               style={{
                 width: "100%",
@@ -358,11 +476,30 @@ export default function LoginPage() {
                 fontWeight: 700,
                 opacity: loading ? 0.7 : 1,
                 transition: "opacity .15s",
-                marginBottom: 16,
+                marginBottom: 12,
               }}
             >
-              {loading ? "Signing in..." : "Sign in →"}
+              {loading ? "Creating account..." : "Create free account →"}
             </button>
+
+            <div
+              style={{
+                fontSize: 11,
+                color: "var(--text3)",
+                textAlign: "center",
+                marginBottom: 14,
+                lineHeight: 1.5,
+              }}
+            >
+              By signing up you agree to our{" "}
+              <span style={{ color: "var(--text)", cursor: "pointer" }}>
+                Terms
+              </span>{" "}
+              and{" "}
+              <span style={{ color: "var(--text)", cursor: "pointer" }}>
+                Privacy Policy
+              </span>
+            </div>
 
             <div
               style={{
@@ -371,16 +508,16 @@ export default function LoginPage() {
                 color: "var(--text3)",
               }}
             >
-              No account?{" "}
+              Already have an account?{" "}
               <span
-                onClick={() => router.push("/register")}
+                onClick={() => router.push("/login")}
                 style={{
                   color: "var(--text)",
                   fontWeight: 600,
                   cursor: "pointer",
                 }}
               >
-                Create one free →
+                Sign in →
               </span>
             </div>
           </div>
