@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const transactions = [
   {
@@ -44,67 +45,95 @@ const transactions = [
   },
 ];
 
+const navItems = [
+  { label: "Dashboard", icon: "🏠" },
+  { label: "Transactions", icon: "📋" },
+  { label: "AI Advisor", icon: "🤖" },
+  { label: "Reports", icon: "📊" },
+  { label: "Goals", icon: "🎯" },
+];
+
 export default function Dashboard() {
+  const router = useRouter();
+  const [activeNav, setActiveNav] = useState("Dashboard");
   const [dark, setDark] = useState(false);
-  const bg = dark ? "#0F0E1A" : "#F7F7FA";
-  const surface = dark ? "#1A1928" : "#FFFFFF";
-  const surface2 = dark ? "#232236" : "#F0EFF8";
-  const border = dark ? "#2E2C4A" : "#E4E2F5";
-  const text = dark ? "#EEEDF8" : "#1A1A2E";
-  const muted = dark ? "#9896C8" : "#5A5880";
-  const hint = dark ? "#5F5D88" : "#9896B8";
-  const primary = dark ? "#7F77FF" : "#6C63FF";
-  const primaryLight = dark ? "#2A2848" : "#EEEDFE";
-  const green = dark ? "#2DBE8E" : "#1D9E75";
-  const greenLight = dark ? "#0D2B22" : "#E1F5EE";
-  const greenDark = dark ? "#9FE1CB" : "#085041";
-  const red = dark ? "#F06B6A" : "#E24B4A";
-  const redLight = dark ? "#2B1515" : "#FCEBEB";
-  const redDark = dark ? "#F7C1C1" : "#791F1F";
+
+  const theme = {
+    bg: dark ? "#0A0A0A" : "#FAFAFA",
+    surface: dark ? "#141414" : "#FFFFFF",
+    surface2: dark ? "#1A1A1A" : "#F5F5F5",
+    border: dark ? "#2A2A2A" : "#EBEBEB",
+    text: dark ? "#F5F5F5" : "#0A0A0A",
+    text2: dark ? "#888888" : "#555555",
+    text3: dark ? "#555555" : "#999999",
+    accent: "#4AE090",
+    accentLight: dark ? "#0A2A1A" : "#E8FFF4",
+    accentDark: dark ? "#4AE090" : "#0A5C34",
+    red: dark ? "#FF6B6B" : "#E24B4A",
+    redLight: dark ? "#2A0A0A" : "#FFF0F0",
+    green: dark ? "#4AE090" : "#1D9E75",
+    greenLight: dark ? "#0A2A1A" : "#E8FFF4",
+  };
 
   return (
     <div
       style={{
         minHeight: "100vh",
-        background: bg,
-        transition: "all .3s",
-        fontFamily: "system-ui,sans-serif",
+        background: theme.bg,
+        fontFamily: "system-ui, sans-serif",
+        transition: "all .2s",
       }}
     >
-      <div
+      {/* Top navbar */}
+      <nav
         style={{
-          background: surface,
-          borderBottom: `0.5px solid ${border}`,
+          background: theme.surface,
+          borderBottom: `0.5px solid ${theme.border}`,
           padding: "14px 24px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          position: "sticky",
+          top: 0,
+          zIndex: 100,
         }}
       >
-        <div style={{ fontSize: 18, fontWeight: 600, color: primary }}>
-          FinMate{" "}
-          <span
-            style={{
-              color: muted,
-              fontWeight: 400,
-              fontSize: 12,
-              marginLeft: 6,
-            }}
-          >
-            AI Finance
-          </span>
+        <div style={{ fontSize: 18, fontWeight: 700, color: theme.text }}>
+          Fin<span style={{ color: theme.accent }}>Mate</span>
         </div>
+
+        {/* Desktop nav */}
+        <div className="desktop-nav" style={{ display: "none", gap: 4 }}>
+          {navItems.map((item) => (
+            <div
+              key={item.label}
+              onClick={() => setActiveNav(item.label)}
+              style={{
+                padding: "7px 14px",
+                borderRadius: 8,
+                fontSize: 13,
+                fontWeight: activeNav === item.label ? 600 : 400,
+                color: activeNav === item.label ? theme.text : theme.text2,
+                background:
+                  activeNav === item.label ? theme.surface2 : "transparent",
+                cursor: "pointer",
+                transition: "all .15s",
+              }}
+            >
+              {item.label}
+            </div>
+          ))}
+        </div>
+
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontSize: 12, color: muted }}>
-            {dark ? "Dark" : "Light"} mode
-          </span>
+          {/* Dark mode toggle */}
           <div
             onClick={() => setDark(!dark)}
             style={{
-              width: 44,
-              height: 24,
-              borderRadius: 12,
-              background: dark ? primary : border,
+              width: 40,
+              height: 22,
+              borderRadius: 11,
+              background: dark ? theme.accent : theme.border,
               cursor: "pointer",
               position: "relative",
               transition: "background .25s",
@@ -114,256 +143,359 @@ export default function Dashboard() {
               style={{
                 position: "absolute",
                 top: 3,
-                left: dark ? 23 : 3,
-                width: 18,
-                height: 18,
+                left: dark ? 21 : 3,
+                width: 16,
+                height: 16,
                 borderRadius: "50%",
                 background: "#fff",
                 transition: "left .25s",
+                boxShadow: "0 1px 3px rgba(0,0,0,.2)",
               }}
             />
           </div>
-        </div>
-      </div>
 
-      <div style={{ display: "flex" }}>
-        <div
-          style={{
-            width: 200,
-            minHeight: "calc(100vh - 53px)",
-            background: surface,
-            borderRight: `0.5px solid ${border}`,
-            padding: "16px 0",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          {["Dashboard", "Transactions", "AI Advisor", "Reports", "Goals"].map(
-            (item, i) => (
-              <div
-                key={item}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  padding: "10px 16px",
-                  fontSize: 13,
-                  color: i === 0 ? primary : muted,
-                  background: i === 0 ? primaryLight : "transparent",
-                  fontWeight: i === 0 ? 500 : 400,
-                  cursor: "pointer",
-                }}
-              >
-                <div
-                  style={{
-                    width: 7,
-                    height: 7,
-                    borderRadius: "50%",
-                    background: "currentColor",
-                    opacity: i === 0 ? 1 : 0.5,
-                  }}
-                />
-                {item}
-              </div>
-            ),
-          )}
-          <div style={{ flex: 1 }} />
+          {/* Add expense button */}
+          <button
+            onClick={() => router.push("/add")}
+            style={{
+              background: theme.accent,
+              color: "#0A0A0A",
+              border: "none",
+              borderRadius: 9,
+              padding: "8px 16px",
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            + Add
+          </button>
+
+          {/* Avatar */}
           <div
             style={{
-              margin: "0 10px",
-              background: primaryLight,
-              borderRadius: 10,
-              padding: 10,
+              width: 34,
+              height: 34,
+              borderRadius: "50%",
+              background: theme.accent,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 12,
+              fontWeight: 700,
+              color: "#0A0A0A",
+            }}
+          >
+            AR
+          </div>
+        </div>
+      </nav>
+
+      <div style={{ display: "flex" }}>
+        {/* Sidebar — desktop only */}
+        <div
+          className="sidebar"
+          style={{
+            display: "none",
+            width: 220,
+            minHeight: "calc(100vh - 53px)",
+            background: theme.surface,
+            borderRight: `0.5px solid ${theme.border}`,
+            padding: "20px 12px",
+            flexDirection: "column",
+            gap: 2,
+            position: "sticky",
+            top: 53,
+            height: "calc(100vh - 53px)",
+          }}
+        >
+          {navItems.map((item) => (
+            <div
+              key={item.label}
+              onClick={() => setActiveNav(item.label)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "10px 12px",
+                borderRadius: 10,
+                fontSize: 13,
+                fontWeight: activeNav === item.label ? 600 : 400,
+                color: activeNav === item.label ? theme.text : theme.text2,
+                background:
+                  activeNav === item.label ? theme.surface2 : "transparent",
+                cursor: "pointer",
+                transition: "all .15s",
+              }}
+            >
+              <span style={{ fontSize: 16 }}>{item.icon}</span>
+              {item.label}
+            </div>
+          ))}
+
+          <div style={{ flex: 1 }} />
+
+          {/* Free plan box */}
+          <div
+            style={{
+              background: theme.surface2,
+              borderRadius: 12,
+              padding: 14,
+              border: `0.5px solid ${theme.border}`,
             }}
           >
             <div
               style={{
                 fontSize: 11,
-                fontWeight: 500,
-                color: primary,
-                marginBottom: 2,
+                fontWeight: 600,
+                color: theme.text,
+                marginBottom: 4,
               }}
             >
               Free plan
             </div>
-            <div style={{ fontSize: 10, color: muted, marginBottom: 7 }}>
+            <div style={{ fontSize: 11, color: theme.text3, marginBottom: 8 }}>
               18 of 30 transactions
             </div>
             <div
               style={{
                 height: 3,
-                background: border,
+                background: theme.border,
                 borderRadius: 2,
-                marginBottom: 8,
+                marginBottom: 10,
               }}
             >
               <div
                 style={{
                   width: "60%",
                   height: "100%",
-                  background: primary,
+                  background: theme.accent,
                   borderRadius: 2,
                 }}
               />
             </div>
-            <div
+            <button
               style={{
-                background: primary,
-                color: "#fff",
-                borderRadius: 6,
-                padding: "6px",
-                fontSize: 11,
-                fontWeight: 500,
-                textAlign: "center",
+                width: "100%",
+                padding: "8px",
+                background: theme.accent,
+                color: "#0A0A0A",
+                border: "none",
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 700,
                 cursor: "pointer",
               }}
             >
               Upgrade to Pro
-            </div>
+            </button>
           </div>
         </div>
 
-        <div
-          style={{
-            flex: 1,
-            padding: 24,
-            display: "flex",
-            flexDirection: "column",
-            gap: 20,
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <div>
-              <div style={{ fontSize: 18, fontWeight: 600, color: text }}>
-                Good morning, Alex
-              </div>
-              <div style={{ fontSize: 12, color: muted, marginTop: 2 }}>
-                March 2026 · 3 days left this month
-              </div>
+        {/* Main content */}
+        <div style={{ flex: 1, padding: "24px 20px", maxWidth: "100%" }}>
+          {/* Greeting */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 22, fontWeight: 700, color: theme.text }}>
+              Good morning, Alex 👋
             </div>
-            <div
-              style={{
-                background: primary,
-                color: "#fff",
-                padding: "9px 18px",
-                borderRadius: 9,
-                fontSize: 13,
-                fontWeight: 500,
-                cursor: "pointer",
-              }}
-            >
-              + Add expense
+            <div style={{ fontSize: 13, color: theme.text3, marginTop: 3 }}>
+              April 2026 · Here's your financial summary
             </div>
           </div>
 
+          {/* Hero balance card */}
+          <div
+            style={{
+              background: theme.text,
+              borderRadius: 20,
+              padding: "24px",
+              marginBottom: 16,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 11,
+                color: "#666",
+                letterSpacing: ".08em",
+                textTransform: "uppercase" as const,
+                marginBottom: 6,
+              }}
+            >
+              Net savings this month
+            </div>
+            <div
+              style={{
+                fontSize: 36,
+                fontWeight: 700,
+                color: "#fff",
+                letterSpacing: "-1px",
+                marginBottom: 4,
+              }}
+            >
+              $1,370
+            </div>
+            <div
+              style={{ fontSize: 12, color: theme.accent, marginBottom: 16 }}
+            >
+              ↑ +$210 from last month · 42% savings rate
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                onClick={() => router.push("/add")}
+                style={{
+                  flex: 1,
+                  padding: "10px",
+                  background: theme.accent,
+                  color: "#0A0A0A",
+                  border: "none",
+                  borderRadius: 10,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                + Add expense
+              </button>
+              <button
+                style={{
+                  flex: 1,
+                  padding: "10px",
+                  background: "rgba(255,255,255,.1)",
+                  color: "#fff",
+                  border: "0.5px solid rgba(255,255,255,.15)",
+                  borderRadius: 10,
+                  fontSize: 13,
+                  fontWeight: 500,
+                  cursor: "pointer",
+                }}
+              >
+                View reports
+              </button>
+            </div>
+          </div>
+
+          {/* Metric cards */}
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(3,1fr)",
+              gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
               gap: 12,
+              marginBottom: 16,
             }}
           >
             {[
               {
-                label: "Total income",
+                label: "Income",
                 value: "$3,240",
-                change: "+8% vs last month",
+                change: "+8%",
                 positive: true,
               },
               {
-                label: "Total spent",
+                label: "Expenses",
                 value: "$1,870",
-                change: "+14% vs last month",
+                change: "+14%",
                 positive: false,
               },
               {
-                label: "Net savings",
-                value: "$1,370",
-                change: "+$210 saved",
+                label: "Savings rate",
+                value: "42%",
+                change: "+6%",
                 positive: true,
               },
             ].map((card) => (
               <div
                 key={card.label}
                 style={{
-                  background: surface,
-                  border: `0.5px solid ${border}`,
-                  borderRadius: 12,
-                  padding: 16,
+                  background: theme.surface,
+                  border: `0.5px solid ${theme.border}`,
+                  borderRadius: 14,
+                  padding: "14px 16px",
                 }}
               >
                 <div
                   style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 28,
+                    height: 28,
+                    borderRadius: 8,
+                    marginBottom: 8,
+                    background: card.positive
+                      ? theme.greenLight
+                      : theme.redLight,
+                  }}
+                >
+                  <span style={{ fontSize: 14 }}>
+                    {card.positive ? "↑" : "↓"}
+                  </span>
+                </div>
+                <div
+                  style={{
                     fontSize: 11,
-                    color: hint,
-                    marginBottom: 6,
+                    color: theme.text3,
                     textTransform: "uppercase" as const,
-                    letterSpacing: ".04em",
-                    fontWeight: 500,
+                    letterSpacing: ".06em",
+                    marginBottom: 4,
                   }}
                 >
                   {card.label}
                 </div>
                 <div
                   style={{
-                    fontSize: 22,
-                    fontWeight: 600,
-                    color:
-                      card.label === "Total income"
-                        ? green
-                        : card.label === "Total spent"
-                          ? red
-                          : text,
+                    fontSize: 20,
+                    fontWeight: 700,
+                    color: theme.text,
+                    marginBottom: 4,
                   }}
                 >
                   {card.value}
                 </div>
                 <div
                   style={{
-                    display: "inline-flex",
-                    fontSize: 11,
+                    display: "inline-block",
+                    fontSize: 10,
+                    fontWeight: 600,
                     padding: "2px 8px",
                     borderRadius: 20,
-                    marginTop: 6,
-                    fontWeight: 500,
-                    background: card.positive ? greenLight : redLight,
-                    color: card.positive ? greenDark : redDark,
+                    background: card.positive
+                      ? theme.greenLight
+                      : theme.redLight,
+                    color: card.positive ? theme.green : theme.red,
                   }}
                 >
-                  {card.change}
+                  {card.change} vs last month
                 </div>
               </div>
             ))}
           </div>
 
+          {/* Two column grid */}
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "1.2fr 1fr",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
               gap: 16,
+              marginBottom: 16,
             }}
           >
+            {/* Chart */}
             <div
               style={{
-                background: surface,
-                border: `0.5px solid ${border}`,
-                borderRadius: 12,
+                background: theme.surface,
+                border: `0.5px solid ${theme.border}`,
+                borderRadius: 14,
                 padding: 16,
               }}
             >
               <div
                 style={{
                   fontSize: 12,
-                  fontWeight: 500,
-                  color: muted,
+                  fontWeight: 600,
+                  color: theme.text2,
                   textTransform: "uppercase" as const,
-                  letterSpacing: ".04em",
+                  letterSpacing: ".06em",
                   marginBottom: 14,
                 }}
               >
@@ -399,8 +531,8 @@ export default function Dashboard() {
                       style={{
                         width: "100%",
                         height: b.inc,
-                        background: greenLight,
-                        border: `0.5px solid ${green}`,
+                        background: theme.greenLight,
+                        border: `0.5px solid ${theme.green}`,
                         borderRadius: "3px 3px 0 0",
                       }}
                     />
@@ -408,19 +540,21 @@ export default function Dashboard() {
                       style={{
                         width: "100%",
                         height: b.exp,
-                        background: redLight,
-                        border: `0.5px solid ${red}`,
+                        background: theme.redLight,
+                        border: `0.5px solid ${theme.red}`,
                         borderRadius: "3px 3px 0 0",
                       }}
                     />
-                    <div style={{ fontSize: 9, color: hint }}>{b.label}</div>
+                    <div style={{ fontSize: 9, color: theme.text3 }}>
+                      {b.label}
+                    </div>
                   </div>
                 ))}
               </div>
               <div style={{ display: "flex", gap: 12, marginTop: 10 }}>
                 {[
-                  { c: greenLight, b: green, l: "Income" },
-                  { c: redLight, b: red, l: "Spending" },
+                  { c: theme.greenLight, b: theme.green, l: "Income" },
+                  { c: theme.redLight, b: theme.red, l: "Spending" },
                 ].map((l) => (
                   <div
                     key={l.l}
@@ -429,7 +563,7 @@ export default function Dashboard() {
                       alignItems: "center",
                       gap: 4,
                       fontSize: 10,
-                      color: muted,
+                      color: theme.text2,
                     }}
                   >
                     <div
@@ -447,50 +581,79 @@ export default function Dashboard() {
               </div>
             </div>
 
+            {/* Recent transactions */}
             <div
               style={{
-                background: surface,
-                border: `0.5px solid ${border}`,
-                borderRadius: 12,
+                background: theme.surface,
+                border: `0.5px solid ${theme.border}`,
+                borderRadius: 14,
                 padding: 16,
               }}
             >
               <div
                 style={{
-                  fontSize: 12,
-                  fontWeight: 500,
-                  color: muted,
-                  textTransform: "uppercase" as const,
-                  letterSpacing: ".04em",
-                  marginBottom: 12,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 14,
                 }}
               >
-                Recent
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: theme.text2,
+                    textTransform: "uppercase" as const,
+                    letterSpacing: ".06em",
+                  }}
+                >
+                  Recent
+                </div>
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: theme.accent,
+                    cursor: "pointer",
+                    fontWeight: 500,
+                  }}
+                >
+                  See all →
+                </div>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1,
+                  background: theme.border,
+                  borderRadius: 10,
+                  overflow: "hidden",
+                }}
+              >
                 {transactions.map((t) => (
                   <div
                     key={t.id}
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 9,
-                      padding: 8,
-                      background: surface2,
-                      borderRadius: 8,
+                      gap: 10,
+                      padding: "10px 12px",
+                      background: theme.surface,
                     }}
                   >
                     <div
                       style={{
-                        width: 30,
-                        height: 30,
-                        borderRadius: 8,
+                        width: 32,
+                        height: 32,
+                        borderRadius: 9,
                         background:
-                          t.type === "income" ? primaryLight : redLight,
+                          t.type === "income"
+                            ? theme.greenLight
+                            : theme.redLight,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontSize: 13,
+                        fontSize: 14,
                         flexShrink: 0,
                       }}
                     >
@@ -507,7 +670,7 @@ export default function Dashboard() {
                         style={{
                           fontSize: 13,
                           fontWeight: 500,
-                          color: text,
+                          color: theme.text,
                           whiteSpace: "nowrap" as const,
                           overflow: "hidden",
                           textOverflow: "ellipsis",
@@ -515,7 +678,7 @@ export default function Dashboard() {
                       >
                         {t.name}
                       </div>
-                      <div style={{ fontSize: 10, color: hint }}>
+                      <div style={{ fontSize: 10, color: theme.text3 }}>
                         {t.category} · {t.date}
                       </div>
                     </div>
@@ -523,7 +686,7 @@ export default function Dashboard() {
                       style={{
                         fontSize: 13,
                         fontWeight: 600,
-                        color: t.amount > 0 ? green : red,
+                        color: t.amount > 0 ? theme.green : theme.red,
                         whiteSpace: "nowrap" as const,
                       }}
                     >
@@ -535,27 +698,36 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div style={{ background: primary, borderRadius: 12, padding: 16 }}>
+          {/* AI Insight card */}
+          <div
+            style={{
+              background: theme.text,
+              borderRadius: 14,
+              padding: 18,
+              marginBottom: 16,
+            }}
+          >
             <div
               style={{
+                display: "inline-block",
                 fontSize: 10,
-                background: "rgba(255,255,255,.2)",
-                color: "#fff",
+                fontWeight: 600,
+                background: theme.accent,
+                color: "#0A0A0A",
                 padding: "2px 10px",
                 borderRadius: 20,
-                display: "inline-block",
-                marginBottom: 8,
-                fontWeight: 500,
+                marginBottom: 10,
+                letterSpacing: ".04em",
               }}
             >
-              AI insight · today
+              AI INSIGHT · TODAY
             </div>
             <div
               style={{
-                fontSize: 13,
+                fontSize: 14,
                 color: "#fff",
-                lineHeight: 1.55,
-                marginBottom: 10,
+                lineHeight: 1.6,
+                marginBottom: 12,
               }}
             >
               You spent 20% more on food this week — mostly dining out. Your 4
@@ -563,26 +735,28 @@ export default function Dashboard() {
             </div>
             <div
               style={{
-                background: "rgba(255,255,255,.12)",
-                borderRadius: 8,
-                padding: "9px 12px",
+                background: "rgba(255,255,255,.08)",
+                borderRadius: 10,
+                padding: "12px 14px",
+                borderLeft: `3px solid ${theme.accent}`,
               }}
             >
               <div
                 style={{
-                  fontSize: 9,
-                  color: "rgba(255,255,255,.6)",
+                  fontSize: 10,
+                  color: theme.accent,
+                  fontWeight: 600,
+                  marginBottom: 4,
                   textTransform: "uppercase" as const,
-                  letterSpacing: ".05em",
-                  marginBottom: 3,
+                  letterSpacing: ".04em",
                 }}
               >
-                Daily savings tip
+                Daily tip
               </div>
               <div
                 style={{
-                  fontSize: 12,
-                  color: "rgba(255,255,255,.9)",
+                  fontSize: 13,
+                  color: "rgba(255,255,255,.8)",
                   lineHeight: 1.5,
                 }}
               >
@@ -590,14 +764,32 @@ export default function Dashboard() {
                 a small emergency fund.
               </div>
             </div>
+            <button
+              onClick={() => router.push("/chat")}
+              style={{
+                marginTop: 14,
+                padding: "9px 18px",
+                background: theme.accent,
+                color: "#0A0A0A",
+                border: "none",
+                borderRadius: 9,
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              Chat with AI advisor →
+            </button>
           </div>
 
+          {/* Savings goal */}
           <div
             style={{
-              background: surface,
-              border: `0.5px solid ${border}`,
-              borderRadius: 12,
+              background: theme.surface,
+              border: `0.5px solid ${theme.border}`,
+              borderRadius: 14,
               padding: 16,
+              marginBottom: 24,
             }}
           >
             <div
@@ -605,29 +797,46 @@ export default function Dashboard() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "baseline",
-                marginBottom: 8,
+                marginBottom: 10,
               }}
             >
-              <div style={{ fontSize: 20, fontWeight: 600, color: text }}>
-                $1,370
+              <div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: theme.text2,
+                    textTransform: "uppercase" as const,
+                    letterSpacing: ".06em",
+                    marginBottom: 4,
+                  }}
+                >
+                  Monthly savings goal
+                </div>
+                <div
+                  style={{ fontSize: 24, fontWeight: 700, color: theme.text }}
+                >
+                  $1,370
+                </div>
               </div>
-              <div style={{ fontSize: 12, color: hint }}>
-                91% of $1,500 goal
+              <div style={{ fontSize: 13, color: theme.text3 }}>
+                of $1,500 goal
               </div>
             </div>
             <div
               style={{
                 height: 6,
-                background: border,
+                background: theme.border,
                 borderRadius: 3,
                 overflow: "hidden",
+                marginBottom: 6,
               }}
             >
               <div
                 style={{
                   width: "91%",
                   height: "100%",
-                  background: primary,
+                  background: theme.accent,
                   borderRadius: 3,
                 }}
               />
@@ -636,18 +845,83 @@ export default function Dashboard() {
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                fontSize: 10,
-                color: hint,
-                marginTop: 4,
+                fontSize: 11,
+                color: theme.text3,
               }}
             >
               <span>$0</span>
-              <span style={{ color: primary, fontWeight: 500 }}>91%</span>
+              <span style={{ color: theme.accent, fontWeight: 600 }}>
+                91% complete
+              </span>
               <span>$1,500</span>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Mobile bottom nav */}
+      <div
+        className="mobile-nav"
+        style={{
+          display: "none",
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: theme.text,
+          padding: "10px 16px 20px",
+          justifyContent: "space-around",
+          borderTop: `0.5px solid ${theme.border}`,
+          zIndex: 100,
+        }}
+      >
+        {navItems.slice(0, 5).map((item) => (
+          <div
+            key={item.label}
+            onClick={() => setActiveNav(item.label)}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 3,
+              fontSize: 9,
+              cursor: "pointer",
+              color: activeNav === item.label ? theme.accent : "#555",
+              fontWeight: activeNav === item.label ? 600 : 400,
+            }}
+          >
+            <span style={{ fontSize: 18 }}>{item.icon}</span>
+            {item.label}
+          </div>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <footer
+        style={{
+          padding: "16px 24px",
+          textAlign: "center",
+          borderTop: `0.5px solid ${theme.border}`,
+          background: theme.surface,
+        }}
+      >
+        <div style={{ fontSize: 12, color: theme.text3 }}>
+          © {new Date().getFullYear()} Developed by{" "}
+          <span style={{ color: theme.text, fontWeight: 500 }}>
+            FrictionLab
+          </span>
+        </div>
+      </footer>
+
+      <style>{`
+        @media (min-width: 768px) {
+          .sidebar { display: flex !important; }
+          .desktop-nav { display: flex !important; }
+        }
+        @media (max-width: 767px) {
+          .mobile-nav { display: flex !important; }
+        }
+      `}</style>
     </div>
   );
 }
