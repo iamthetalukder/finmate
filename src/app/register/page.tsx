@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createSupabaseClient } from "@/lib/supabase";
 
 const CURRENCIES = [
   { code: "BDT", flag: "🇧🇩", name: "Bangladeshi Taka" },
@@ -36,6 +37,7 @@ export default function RegisterPage() {
   const [currency, setCurrency] = useState("BDT");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   const strength = getStrength(password);
   const strengthColors = [
@@ -46,6 +48,14 @@ export default function RegisterPage() {
     "#4AE090",
   ];
   const strengthLabels = ["", "Weak", "Fair", "Good", "Strong"];
+
+  async function handleGoogle() {
+    const supabase = createSupabaseClient();
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/dashboard` },
+    });
+  }
 
   async function handleRegister() {
     if (!name || !email || !password) {
@@ -58,10 +68,39 @@ export default function RegisterPage() {
     }
     setLoading(true);
     setError("");
-    setTimeout(() => {
+
+    const supabase = createSupabaseClient();
+
+    const { data, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: name,
+          currency: currency,
+        },
+      },
+    });
+
+    if (authError) {
+      setError(authError.message);
       setLoading(false);
-      router.push("/dashboard");
-    }, 1500);
+      return;
+    }
+
+    if (data.user) {
+      await supabase.from("users").upsert({
+        id: data.user.id,
+        email: email,
+        name: name,
+        plan: "free",
+        currency: currency,
+      });
+    }
+
+    setSuccess(true);
+    setLoading(false);
+    setTimeout(() => router.push("/dashboard"), 1500);
   }
 
   const inputStyle = {
@@ -253,8 +292,26 @@ export default function RegisterPage() {
               No credit card needed · Cancel anytime
             </div>
 
+            {/* Success message */}
+            {success && (
+              <div
+                style={{
+                  background: "var(--accent-light)",
+                  color: "var(--accent-dark)",
+                  fontSize: 13,
+                  padding: "12px 14px",
+                  borderRadius: 10,
+                  marginBottom: 14,
+                  fontWeight: 500,
+                }}
+              >
+                ✓ Account created! Redirecting to dashboard...
+              </div>
+            )}
+
             {/* Google */}
             <button
+              onClick={handleGoogle}
               style={{
                 width: "100%",
                 padding: "12px",
@@ -269,6 +326,7 @@ export default function RegisterPage() {
                 justifyContent: "center",
                 gap: 10,
                 marginBottom: 20,
+                cursor: "pointer",
               }}
             >
               <div
@@ -464,22 +522,27 @@ export default function RegisterPage() {
             {/* Submit */}
             <button
               onClick={handleRegister}
-              disabled={loading}
+              disabled={loading || success}
               style={{
                 width: "100%",
                 padding: "13px",
-                background: "var(--accent)",
+                background: success ? "var(--accent-light)" : "var(--accent)",
                 color: "var(--text)",
                 border: "none",
                 borderRadius: "var(--radius)",
                 fontSize: 14,
                 fontWeight: 700,
                 opacity: loading ? 0.7 : 1,
-                transition: "opacity .15s",
+                transition: "all .15s",
                 marginBottom: 12,
+                cursor: "pointer",
               }}
             >
-              {loading ? "Creating account..." : "Create free account →"}
+              {loading
+                ? "Creating account..."
+                : success
+                  ? "✓ Account created!"
+                  : "Create free account →"}
             </button>
 
             <div

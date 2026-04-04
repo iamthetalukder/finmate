@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createSupabaseClient } from "@/lib/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,10 +17,29 @@ export default function LoginPage() {
     }
     setLoading(true);
     setError("");
-    setTimeout(() => {
+
+    const supabase = createSupabaseClient();
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (authError) {
+      setError(authError.message);
       setLoading(false);
-      router.push("/dashboard");
-    }, 1500);
+      return;
+    }
+
+    router.push("/dashboard");
+    setLoading(false);
+  }
+
+  async function handleGoogle() {
+    const supabase = createSupabaseClient();
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/dashboard` },
+    });
   }
 
   const inputStyle = {
@@ -201,6 +221,7 @@ export default function LoginPage() {
 
             {/* Google */}
             <button
+              onClick={handleGoogle}
               style={{
                 width: "100%",
                 padding: "12px",
@@ -215,6 +236,7 @@ export default function LoginPage() {
                 justifyContent: "center",
                 gap: 10,
                 marginBottom: 20,
+                cursor: "pointer",
               }}
             >
               <div
@@ -359,6 +381,7 @@ export default function LoginPage() {
                 opacity: loading ? 0.7 : 1,
                 transition: "opacity .15s",
                 marginBottom: 16,
+                cursor: "pointer",
               }}
             >
               {loading ? "Signing in..." : "Sign in →"}
