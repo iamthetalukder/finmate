@@ -895,24 +895,6 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
-
-      {/* Footer */}
-      <footer
-        style={{
-          padding: "16px 24px",
-          textAlign: "center",
-          borderTop: `0.5px solid ${theme.border}`,
-          background: theme.surface,
-        }}
-      >
-        <div style={{ fontSize: 12, color: theme.text3 }}>
-          © {new Date().getFullYear()} Developed by{" "}
-          <span style={{ color: theme.text, fontWeight: 500 }}>
-            FrictionLab
-          </span>
-        </div>
-      </footer>
-
       <style>{`
         @media (min-width: 768px) {
           .sidebar { display: flex !important; }
